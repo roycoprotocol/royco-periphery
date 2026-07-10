@@ -2,5 +2,70 @@
 src = "src"
 out = "out"
 libs = ["lib"]
+optimizer = true
+optimizer_runs = 500
+bytecode_hash = "none"
+cbor_metadata = false
+sparse_mode = false
+build_info = true
+evm_version = "prague"
+via_ir = true
+deny = "never"
+fs_permissions = [{ access = "read", path = "./out" }, { access = "read-write", path = "./output" }]
+solc_version = "0.8.35"
+ignored_warnings_from = ["test/*", "lib/*"]
+show_progress = true
 
-# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+[profile.development]
+optimizer = true
+optimizer_runs = 1
+via_ir = true
+
+[profile.default.optimizer_details]
+constantOptimizer = true
+yul = true
+
+[profile.default.optimizer_details.yulDetails]
+stackAllocation = true
+
+[fmt]
+line_length = 160
+wrap_comments = false
+bracket_spacing = true
+number_underscore = "thousands"
+int_types = "long"
+multiline_func_header = "all"
+quote_style = "double"
+# test/ is fmt-exempt: forge's nested *.t.sol glob and number_underscore behavior drift
+# across versions (contributors run mixed forge builds); src/ and script/ are still checked.
+ignore = ["lib/**", "test/**"]
+sort_imports = true
+
+[lint]
+exclude_lints = ["mixed-case-function", "mixed-case-variable", "unsafe-typecast", "pascal-case-struct", "unwrapped-modifier-logic", "erc20-unchecked-transfer"]
+
+[fuzz]
+runs = 200
+show_logs = true
+
+# CI profile: the PR gate — 1,000 fuzz runs per test, 256x64 invariant runs
+[profile.ci]
+fuzz = { runs = 1000, show_logs = false }
+invariant = { runs = 256, depth = 64, fail_on_revert = false }
+show_progress = false
+
+# Nightly profile: deep fuzz/invariant sweeps across token decimal configurations
+[profile.nightly]
+fuzz = { runs = 50000, show_logs = false }
+invariant = { runs = 2048, depth = 256, fail_on_revert = false }
+show_progress = false
+
+# Fork suites read these so a missing RPC env fails loudly instead of silently skipping
+[rpc_endpoints]
+mainnet = "${MAINNET_RPC_URL}"
+
+[etherscan]
+mainnet = { key = "${ETHERSCAN_API_KEY}" }
+avalanche = { key = "${AVALANCHE_API_KEY}" }
+arbitrum = { key = "${ARBITRUM_API_KEY}" }
+base = { key = "${BASE_API_KEY}" }

@@ -2,19 +2,24 @@
 cache/
 out/
 
-# Commonly ignored directories
-.logs/
-.ignore/
+# Coverage
+lcov.info
 
-# Ignores development broadcast logs
-!/broadcast
-/broadcast/*/31337/
-/broadcast/**/dry-run/
+# Foundry broadcast logs
+broadcast/
 
-# Docs
-docs/
-
-# Dotenv file
+# Dotenv files
 .env
 .env.*
 !.env.example
+
+# Deployment script output (keep the directory so Safe-JSON writes work on a fresh clone)
+output/*
+!output/.gitkeep
+
+# Claude output
+.claude
+
+# Editor and OS files
+.vscode/
+.DS_Store
