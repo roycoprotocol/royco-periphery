@@ -1,6 +1,6 @@
 # Royco Periphery [![CI](https://github.com/roycoprotocol/royco-periphery/actions/workflows/CI.yml/badge.svg)](https://github.com/roycoprotocol/royco-periphery/actions/workflows/CI.yml)
 
-The Royco Periphery is the integration layer around Royco markets: contracts that operate, price, and wrap tranches without belonging to any single protocol deployment. It provides batch NAV accounting synchronization, Chainlink-compatible tranche share price oracles, and Pendle Standardized Yield wrappers, all engineered to work with both **Royco Dawn** and **Royco Day** markets.
+The Royco Periphery is the integration layer around Royco markets: contracts that operate, price, and wrap tranches without belonging to any single structuring substrate. It provides batch NAV accounting synchronization, Chainlink-compatible tranche share price oracles, and Pendle Standardized Yield wrappers, all engineered to work with both **Royco Dawn** and **Royco Day** markets.
 
 ## Architecture
 
