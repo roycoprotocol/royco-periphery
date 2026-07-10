@@ -19,7 +19,7 @@ import { IAccessManager } from "../../lib/openzeppelin-contracts/contracts/acces
  *   SafeTransaction[] memory txs = new SafeTransaction[](2);
  *   txs[0] = buildSetTargetFunctionRole(factory, target, selectors, role);
  *   txs[1] = buildGrantRole(factory, role, account, 0);
- *   writeSafeTransactionJson(txs, "output/config.json", "My Config");
+ *   writeSafeTransactionJson(txs, "config.json", "My Config", "Configures roles for my contract");
  */
 abstract contract AccessManagerConfigUtils is Script {
     /// @dev Output path for the Safe transaction JSON

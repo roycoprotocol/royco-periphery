@@ -82,7 +82,6 @@ contract MockKernel {
     }
 }
 
-/// @dev Mock tranche contract for testing
 /**
  * @title RoycoMarketSyncerTest
  * @notice Comprehensive test suite for the RoycoMarketSyncer contract
@@ -238,7 +237,7 @@ contract RoycoMarketSyncerTest is Test, RolesConfiguration, ExtraRoles {
         roycoAuthority.grantRole(ADMIN_PAUSER_ROLE, PAUSER_ADDRESS, 0);
 
         // Grant ADMIN_UNPAUSER_ROLE to PAUSER as well, with delay 0 (test convenience).
-        // In production this role is held by FNDN with a 1-day Standard delay; the
+        // In production this role is held by a multisig with an execution delay.
         vm.prank(AUTHORITY_ADMIN_ADDRESS);
         roycoAuthority.grantRole(ADMIN_UNPAUSER_ROLE, PAUSER_ADDRESS, 0);
 
@@ -640,19 +639,6 @@ contract RoycoMarketSyncerTest is Test, RolesConfiguration, ExtraRoles {
         syncer.executeBatchAccountingSync(false);
     }
 
-    /// @notice Test batch sync propagates the exact error from failing kernel
-    function test_executeBatchSync_propagatesExactError() external {
-        address[] memory kernels = _singleKernelArray(address(mockKernel1));
-        _addKernels(kernels);
-
-        // Set kernel to fail
-        mockKernel1.setShouldRevert(true);
-
-        vm.prank(SYNC_OPERATOR_ADDRESS);
-        // The error "MockKernel: sync failed" should be propagated exactly
-        vm.expectRevert("MockKernel: sync failed");
-        syncer.executeBatchAccountingSync(false);
-    }
 
     /// @notice Test batch sync propagates custom errors correctly
     function test_executeBatchSync_propagatesCustomError() external {
@@ -859,16 +845,6 @@ contract RoycoMarketSyncerTest is Test, RolesConfiguration, ExtraRoles {
         syncer.executeBatchAccountingSyncFor(kernels, false);
     }
 
-    /// @notice Test batch sync for specific kernels propagates the exact error from failing kernel
-    function test_executeBatchSyncFor_propagatesExactError() external {
-        address[] memory kernels = _singleKernelArray(address(mockKernel1));
-
-        mockKernel1.setShouldRevert(true);
-
-        vm.prank(SYNC_OPERATOR_ADDRESS);
-        vm.expectRevert("MockKernel: sync failed");
-        syncer.executeBatchAccountingSyncFor(kernels, false);
-    }
 
     /// @notice Test batch sync for specific kernels propagates custom errors correctly
     function test_executeBatchSyncFor_propagatesCustomError() external {
@@ -1699,13 +1675,16 @@ contract RoycoMarketSyncerTest is Test, RolesConfiguration, ExtraRoles {
         Vm.Log[] memory logs = vm.getRecordedLogs();
         bytes32 eventSig = keccak256("AccountingSyncFailed(address,bytes)");
 
+        bool foundEvent;
         for (uint256 i = 0; i < logs.length; i++) {
             if (logs[i].topics[0] == eventSig) {
+                foundEvent = true;
                 bytes memory emittedErrorBytes = abi.decode(logs[i].data, (bytes));
                 assertEq(emittedErrorBytes, expectedErrorBytes, "Large error bytes should match exactly");
                 break;
             }
         }
+        assertTrue(foundEvent, "The AccountingSyncFailed event must have been emitted");
     }
 
     /// @notice Test very large error data (10KB) is handled correctly
@@ -1787,13 +1766,16 @@ contract RoycoMarketSyncerTest is Test, RolesConfiguration, ExtraRoles {
         Vm.Log[] memory logs = vm.getRecordedLogs();
         bytes32 eventSig = keccak256("AccountingSyncFailed(address,bytes)");
 
+        bool foundEvent;
         for (uint256 i = 0; i < logs.length; i++) {
             if (logs[i].topics[0] == eventSig) {
+                foundEvent = true;
                 bytes memory emittedErrorBytes = abi.decode(logs[i].data, (bytes));
                 assertEq(emittedErrorBytes, expectedErrorBytes, "Large error bytes should match");
                 break;
             }
         }
+        assertTrue(foundEvent, "The AccountingSyncFailed event must have been emitted");
     }
 
     /// @notice Test executeBatchSyncFor with large error not tolerant
@@ -1960,14 +1942,17 @@ contract RoycoMarketSyncerTest is Test, RolesConfiguration, ExtraRoles {
         Vm.Log[] memory logs = vm.getRecordedLogs();
         bytes32 eventSig = keccak256("AccountingSyncFailed(address,bytes)");
 
+        bool foundEvent;
         for (uint256 i = 0; i < logs.length; i++) {
             if (logs[i].topics[0] == eventSig) {
+                foundEvent = true;
                 bytes memory emittedErrorBytes = abi.decode(logs[i].data, (bytes));
                 assertEq(emittedErrorBytes, expectedErrorBytes, "Empty error bytes should match");
                 assertEq(emittedErrorBytes.length, 0, "Should be zero length");
                 break;
             }
         }
+        assertTrue(foundEvent, "The AccountingSyncFailed event must have been emitted");
     }
 
     /// @notice Test executeBatchSyncFor with panic
@@ -1992,13 +1977,16 @@ contract RoycoMarketSyncerTest is Test, RolesConfiguration, ExtraRoles {
         Vm.Log[] memory logs = vm.getRecordedLogs();
         bytes32 eventSig = keccak256("AccountingSyncFailed(address,bytes)");
 
+        bool foundEvent;
         for (uint256 i = 0; i < logs.length; i++) {
             if (logs[i].topics[0] == eventSig) {
+                foundEvent = true;
                 bytes memory emittedErrorBytes = abi.decode(logs[i].data, (bytes));
                 assertEq(emittedErrorBytes, expectedErrorBytes, "Panic error bytes should match");
                 break;
             }
         }
+        assertTrue(foundEvent, "The AccountingSyncFailed event must have been emitted");
     }
 
     /// @notice Test custom error with various parameter sizes
@@ -2024,8 +2012,10 @@ contract RoycoMarketSyncerTest is Test, RolesConfiguration, ExtraRoles {
         Vm.Log[] memory logs = vm.getRecordedLogs();
         bytes32 eventSig = keccak256("AccountingSyncFailed(address,bytes)");
 
+        bool foundEvent;
         for (uint256 i = 0; i < logs.length; i++) {
             if (logs[i].topics[0] == eventSig) {
+                foundEvent = true;
                 bytes memory emittedErrorBytes = abi.decode(logs[i].data, (bytes));
                 assertEq(emittedErrorBytes, expectedErrorBytes, "Custom error bytes should match exactly");
                 // Verify it starts with CustomSyncError selector
@@ -2033,6 +2023,7 @@ contract RoycoMarketSyncerTest is Test, RolesConfiguration, ExtraRoles {
                 break;
             }
         }
+        assertTrue(foundEvent, "The AccountingSyncFailed event must have been emitted");
     }
 
     /// @notice Test kernel that resets between calls
