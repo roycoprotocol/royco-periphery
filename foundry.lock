@@ -25,11 +25,5 @@
       "name": "release-v4.9",
       "rev": "fd81a96f01cc42ef1c9a5399364968d0e07e9e90"
     }
-  },
-  "lib/solady": {
-    "tag": {
-      "name": "v0.1.26",
-      "rev": "acd959aa4bd04720d640bf4e6a5c71037510cc4b"
-    }
   }
 }
