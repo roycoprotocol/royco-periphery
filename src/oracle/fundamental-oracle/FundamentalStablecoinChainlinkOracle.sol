@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: LicenseRef-PolyForm-Perimeter-1.0.1
 pragma solidity ^0.8.28;
 
 import { Strings } from "../../../lib/openzeppelin-contracts/contracts/utils/Strings.sol";
